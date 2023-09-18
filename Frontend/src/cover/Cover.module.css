@@ -1,0 +1,135 @@
+* {
+    margin: 0;
+    box-sizing: border-box;
+    text-decoration: none;
+    list-style: none
+}
+
+;
+
+body {
+    font-family: sans-serif;
+}
+
+.container {
+    max-width: 1200px;
+    margin: auto;
+}
+
+.row {
+    /* display: flex; */
+    flex-flow: row wrap;
+}
+
+.col-1 {
+    flex: 1 0 8.33%;
+    max-width: 8.33%;
+    padding: 0 15px;
+}
+
+.col-2 {
+    flex: 1 0 16.66%;
+    max-width: 16.66%;
+    padding: 0 15px;
+}
+
+.col-3 {
+    flex: 1 0 25%;
+    max-width: 25%;
+    padding: 0 15px;
+}
+
+.col-4 {
+    flex: 1 0 33.33%;
+    max-width: 33.33%;
+    padding: 0 15px;
+}
+
+.col-5 {
+    flex: 1 0 41.66%;
+    max-width: 41.66%;
+    padding: 0 15px;
+}
+
+.col-6 {
+    flex: 1 0 50%;
+    max-width: 50%;
+    padding: 0 15px;
+}
+
+.col-7 {
+    flex: 1 0 58.33%;
+    max-width: 58.33%;
+    padding: 0 15px;
+}
+
+.col-8 {
+    flex: 1 0 66.66%;
+    max-width: 66.66%;
+    padding: 0 15px;
+}
+
+.col-9 {
+    flex: 1 0 75%;
+    max-width: 75%;
+    padding: 0 15px;
+}
+
+.col-10 {
+    flex: 1 0 83.33%;
+    max-width: 83.33%;
+    padding: 0 15px;
+}
+
+.col-11 {
+    flex: 1 0 91.66%;
+    max-width: 91.66%;
+    padding: 0 15px;
+}
+
+.col-12 {
+    flex: 1 0 100%;
+    max-width: 100%;
+    padding: 0 15px;
+}
+
+.wrap1 {
+    background: url(../images/RS5Y.gif) no-repeat center center/cover;
+    display: flex;
+    height: 100vh;
+}
+
+.container {
+    margin-top: auto;
+}
+
+h1 {
+    font-size: 70px;
+}
+
+.row {
+    text-align: center;
+}
+
+.heading {
+    color: rgb(23, 153, 253);
+}
+
+.quote {
+    font-size: 30px;
+    text-align: center;
+    color: whitesmoke;
+}
+
+.col-3 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn {
+    font-size: 40px;
+    font-weight: 600;
+    color: rgb(23, 153, 253);
+    ;
+}

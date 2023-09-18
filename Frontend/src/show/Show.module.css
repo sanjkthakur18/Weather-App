@@ -1,0 +1,50 @@
+*{ margin:0; box-sizing:border-box; text-decoration: none; list-style: none};
+body{ font-family:sans-serif;}
+
+.container{ max-width: 1200px; margin: auto;}
+
+.row{ display:flex; flex-flow: row wrap;}
+
+.col1{ flex: 1 0 8.33%; max-width: 8.33%; padding: 0 15px;}
+.col2{ flex: 1 0 16.66%; max-width: 16.66%; padding: 0 15px;}
+.col3{ flex: 1 0 25%; max-width: 25%; padding: 0 15px;}
+.col4{ flex: 1 0 33.33%; max-width: 33.33%; padding: 0 15px;}
+.col5{ flex: 1 0 41.66%; max-width: 41.66%; padding: 0 15px;}
+.col6{ flex: 1 0 50%; max-width: 50%; padding: 0 15px;}
+.col7{ flex: 1 0 58.33%; max-width: 58.33%; padding: 0 15px;}
+.col8{ flex: 1 0 66.66%; max-width: 66.66%; padding: 0 15px;}
+.col9{ flex: 1 0 75%; max-width: 75%; padding: 0 15px;}
+.col10{ flex: 1 0 83.33%; max-width: 83.33%; padding: 0 15px;}
+.col11{ flex: 1 0 91.66%; max-width: 91.66%; padding: 0 15px;}
+.col12{ flex: 1 0 100%; max-width: 100%; padding: 0 15px;}
+
+.flex > .container{display: flex; flex-wrap: wrap;}
+
+.wrap1{}
+.heading{color: black; margin-top: 10px;}
+
+.wrap2{}
+/* .wrap2 .container{display: flex;} */
+.box{display: flex; justify-content: space-between; width: 100%; align-items: center; gap: 6rem;}
+.heading{color: black;}
+.cityDetail{margin: 40px 0;}
+/* .cityDetail:nth-child(){display: flex; justify-content: space-between; border: 3px solid black;} */
+.col12 .date{color: #eb6e4b; font-size: 16px; font-weight: 600; line-height: 1.5;}
+.col12 .name{font-size: 30px; font-weight: 700; color: #48484a; line-height: 1.1; }
+
+.col12 .main{font-size: 16px; font-weight: 700; color: #48484a;}
+
+.detail .col12 ul{line-height: 20px; color: #48484a; display: flex; margin: 5.5px 0 0 0; max-width: 400px; flex-wrap: wrap; padding: 0 20px; border-left: 1px solid #eb6e4b;}
+.detail .col12 ul li{margin-right: 20px; align-items: center; flex-wrap: nowrap;}
+.detail .col12 ul li .col6{max-width: 100%; font-size: 16px; color: #48484a;}
+
+#flex{display: flex; justify-content: space-between;}
+
+.wrap3{}
+.wrap3 .container{position: relative;}
+.col12 .temp{display: flex; align-items: center;}
+.col12 .temp .temprature{font-size: 36px; color: #48484a;}
+
+/* .button{position: absolute; left: 26%; top: -72%;} */
+.btn{border: none; border-radius: 10px; text-align: center; background: transparent; font-size: 20px; font-weight: bolder; color: red; cursor: pointer; padding: 5px;}
+.btn:hover{ color: rgb(0, 0, 0); transition: 0.5s;}

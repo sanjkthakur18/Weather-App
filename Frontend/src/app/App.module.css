@@ -1,0 +1,36 @@
+/* *{ margin:0; box-sizing:border-box; text-decoration: none};
+body{ font-family:sans-serif;}
+
+.container{ max-width: 1200px; margin: auto; padding: 0 15px;}
+
+.row{ display:flex; flex-flow: row wrap; margin: 0 -15px;}
+
+.col-1{ flex: 1 0 8.33%; max-width: 8.33%; padding: 0 15px;}
+.col-2{ flex: 1 0 16.66%; max-width: 16.66%; padding: 0 15px;}
+.col-3{ flex: 1 0 25%; max-width: 25%; padding: 0 15px;}
+.col-4{ flex: 1 0 33.33%; max-width: 33.33%; padding: 0 15px;}
+.col-5{ flex: 1 0 41.66%; max-width: 41.66%; padding: 0 15px;}
+.col-6{ flex: 1 0 50%; max-width: 50%; padding: 0 15px;}
+.col-7{ flex: 1 0 58.33%; max-width: 58.33%; padding: 0 15px;}
+.col-8{ flex: 1 0 66.66%; max-width: 66.66%; padding: 0 15px;}
+.col-9{ flex: 1 0 75%; max-width: 75%; padding: 0 15px;}
+.col-10{ flex: 1 0 83.33%; max-width: 83.33%; padding: 0 15px;}
+.col-11{ flex: 1 0 91.66%; max-width: 91.66%; padding: 0 15px;}
+.col-12{ flex: 1 0 100%; max-width: 100%; padding: 0 15px;}
+
+.wrap-1{text-align: center; color:white; display: flex; min-height: 100vh; align-items: center; justify-content: center; background-image: linear-gradient(80deg, #7439db, #c66fbc, #f7944d);}
+.form-container, .signin-form, .signup-form{display: flex; flex-direction: column;}
+
+fieldset{border: 1px solid white; border-radius: 10px; margin: 50px 0;}
+
+select{width: 200px; height: 50px; font-size: 1rem; border-radius: 10px; width: 100%;}
+
+label {text-align: left; padding: 0.25rem 0; margin-bottom: 10px;}
+input {margin: 0.5rem 0; padding: 1rem; border: none; border-radius: 10px; width: 100%; font-size: 1rem;}
+button{border: none; color: #7439db; background-color: white; border-radius: 10px; padding: 20px; font-size: 16px; font-weight: 700;}
+
+.btn{background: none; color: white; text-decoration: underline; cursor: pointer;}
+
+.show-password{width: 20px; margin-bottom: 2px; padding: 0;}
+
+.email{width: 100%;} */

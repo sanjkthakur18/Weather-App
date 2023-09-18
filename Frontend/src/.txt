@@ -1,0 +1,895 @@
+   const handleDel = (id, index) => {
+        axios.delete(`https://6450d2b7a32219691152a162.mockapi.io/weathher/${id}`)
+            .then(() => {
+                const arr = [...weather];
+                arr.splice(index, 1);
+                setWeather(arr);
+                console.log("Weather datta has been deleted.");
+            }).catch(err => {
+                console.log(err);
+            })
+    };
+
+    ------------------------------------------------------------------------------------
+
+    Weather Component =>
+
+    import React, { useState, useEffect } from "react";
+import axios from "axios";
+import moment from "moment";
+import { Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts";
+import classes from "./Weather.module.css";
+
+const Weather = () => {
+    const [city, setCity] = useState("");
+    const [weather, setWeather] = useState([]);
+    // const [state, setState] = useState([]);
+
+    const handleChange = (evt) => {
+        setCity(evt.target.value);
+    };
+
+    const getWindDirection = (angle) => {
+        const directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
+        const index = Math.round(angle / 45) % 8;
+        return directions[index];
+    };
+
+    const getData = async () => {
+        const response = await axios.get(
+            "https://6450d2b7a32219691152a162.mockapi.io/weather"
+        );
+        const loggedInUser = localStorage.getItem("email");
+        const getUser = response.data.find((user) => user.email === loggedInUser);
+
+        console.log(getUser.cities);
+        if (getUser && getUser.cities) {
+            const weatherData = await Promise.all(
+                getUser.cities.map(async (city) => {
+                    const res = await axios.get(
+                        `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=81da5ca090adf861717fd71753373575&units=metric`
+                    );
+
+                    const data = res.data;
+                    const date = moment.unix(data.dt).utcOffset(data.timezone).format("MMMM Do YYYY, h:mm a");
+                    const seher = data.name;
+                    const country = data.sys.country ? `, ${data.sys.country}` : "";
+                    const icon = `http://openweathermap.org/img/wn/${data.weather[0].icon}.png`;
+                    const temperature = `${data.main.temp}\u00B0C`;
+                    const feelslike = `${data.main.feels_like}\u00B0C`;
+                    const main = data.weather[0].main ? `. ${data.weather[0].main}` : "";
+                    const description = data.weather[0].description ? `. ${data.weather[0].description.charAt(0).toUpperCase() + data.weather[0].description.slice(1)}` : "";
+                    const windspeed = data.wind.speed ? `${data.wind.speed}m/s ${getWindDirection(data.wind.deg)}` : "";
+                    const pressure = data.main.pressure ? `${data.main.pressure}hPa` : "";
+                    const dewpoint = data.main.temp_min ? `${(((data.main.temp) - (100 - (data.main.humidity))) / 5).toFixed(2)}\u00B0C` : "";
+                    const visibility = data.visibility ? `${data.visibility / 1000}km` : "";
+                    const humidity = data.main.humidity ? `${data.main.humidity}%` : "";
+
+                    const newWeather = {
+                        id: data.id,
+                        date,
+                        seher,
+                        country,
+                        icon,
+                        temperature,
+                        feelslike,
+                        main,
+                        description,
+                        windspeed,
+                        pressure,
+                        dewpoint,
+                        visibility,
+                        humidity,
+                    };
+                    const arr1 = [];
+                    arr1.push([res]);
+                    console.log(arr1);
+
+                    return newWeather;
+                })
+            );
+            setWeather(weatherData);
+        }
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await axios.get(
+                `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=81da5ca090adf861717fd71753373575&units=metric`
+            );
+            const data = response.data;
+            const date = moment.unix(data.dt).format("MMMM Do YYYY, h:mm a");
+            const seher = data.name;
+            const country = data.sys.country ? `, ${data.sys.country}` : "";
+            const icon = `http://openweathermap.org/img/wn/${data.weather[0].icon}.png`;
+            const temperature = `${data.main.temp}\u00B0C`;
+            const feelslike = `${data.main.feels_like}\u00B0C`;
+            const main = data.weather[0].main ? `. ${data.weather[0].main}` : "";
+            const description = data.weather[0].description ? `. ${data.weather[0].description.charAt(0).toUpperCase() + data.weather[0].description.slice(1)}` : "";
+            const windspeed = data.wind.speed ? `${data.wind.speed}m/s ${getWindDirection(data.wind.deg)}` : "";
+            const pressure = data.main.pressure ? `${data.main.pressure}hPa` : "";
+            const dewpoint = data.main.temp_min ? `${(((data.main.temp) - (100 - (data.main.humidity))) / 5).toFixed(2)}\u00B0C` : "";
+            const visibility = data.visibility ? `${data.visibility / 1000}km` : "";
+            const humidity = data.main.humidity ? `${data.main.humidity}%` : "";
+
+            const newWeather = {
+                id: data.id,
+                date,
+                seher,
+                country,
+                icon,
+                temperature,
+                feelslike,
+                main,
+                description,
+                windspeed,
+                pressure,
+                dewpoint,
+                visibility,
+                humidity,
+            };
+
+            const res = await axios.get(`https://6450d2b7a32219691152a162.mockapi.io/weather`);
+            const loggedInUser = localStorage.getItem("email");
+            const getUser = res.data.find((user) => user.email === loggedInUser);
+            let citiesData = []
+            if (getUser.cities) citiesData = [...getUser.cities]
+            else citiesData = []
+            if (getUser) {
+                await axios.put(`https://6450d2b7a32219691152a162.mockapi.io/weather/${getUser.id}`, {
+                    cities: [...citiesData, seher]
+                });
+            };
+
+            setWeather([...weather, newWeather]);
+            setCity("");
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    const handleDel = async (id, seher) => {
+        try {
+            // await axios.delete(`https://6450d2b7a32219691152a162.mockapi.io/weather/${id}`);
+            const loggedInUser = localStorage.getItem("email");
+            const res = await axios.get(
+                `https://6450d2b7a32219691152a162.mockapi.io/weather`
+            );
+
+            const getUser = res.data.find((item) => item.email === loggedInUser);
+            if (getUser && getUser.cities) {
+                // const arr = [...getUser.cities];
+                // getUser.cities.filter((city) => city === seher)
+                // console.log(getUser.cities.filter((city) => city`` == seher))
+                getUser.cities.map((city) => console.log(city))
+                // arr.splice(index, 1);
+                // setWeather(arr);
+                console.log("Weather data has been deleted.");
+            }
+        } catch (error) {
+            console.log(error)
+        };
+    };
+
+    useEffect(() => {
+        getData();
+    }, []);
+
+    /*     useEffect(() => {
+            if (weather && weather.id) {
+                showForecast(weather.id);
+            }
+        }, [weather]); */
+
+    return (
+        <>
+            <div className={classes.wrap1} >
+                <div className={classes.container} >
+                    <div className={classes.row}>
+                        <div className={classes.col12}  >
+                            <form onSubmit={handleSubmit} className={classes.cityForm}>
+                                <label htmlFor="city">
+                                    <input type="text" autoFocus autoComplete="on" required name="city" value={city} onChange={handleChange} placeholder="Search City" className={classes.city}
+                                    />
+                                </label>
+                                <button type="submit">Search</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className={classes.flex}>
+                <div className={classes.container}>
+                    {weather.map((user) => (
+                        <div className={classes.show} key={user.id}>
+                            <div className={classes.flexBox}>
+                                <div className={classes.wrap2}>
+                                    <div className={classes.container}>
+                                        <div className={classes.detail}>
+                                            <div className={classes.row}>
+                                                <div className={classes.cityDetail}>
+                                                    <div className={classes.col12}>
+                                                        <span className={classes.date}>{user.date}</span>
+                                                    </div>
+                                                    <div className={`${classes.col12} ${classes.box}`}>
+                                                        <h2 className={classes.name}>
+                                                            {user.seher}
+                                                            {user.country}
+                                                        </h2>
+                                                        <button type="submit" className={classes.btn} onClick={() => handleDel(user.seher)}>✕</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className={classes.wrap3}>
+                                    <div className={classes.container}>
+                                        <div className={classes.row}>
+                                            <div className={classes.weatherTemp}>
+                                                <div className={classes.col12}>
+                                                    <span className={classes.temp}>
+                                                        <img src={user.icon} alt="icon" /> {user.temperature}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className={classes.row}>
+                                            <div className={classes.weather}>
+                                                <div className={classes.col12}>
+                                                    <p className={classes.main}>
+                                                        Feels Like: {user.feelslike}.{user.main}.{user.description}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className={classes.row}>
+                                            <div className={classes.detail}>
+                                                <div className={classes.col12}>
+                                                    <ul>
+                                                        <div>
+                                                            <li>
+                                                                <div className={classes.col6}>{user.windspeed}</div>
+                                                            </li>
+                                                            <li>
+                                                                <div className={classes.col6}>Humidity: {user.humidity}</div>
+                                                            </li>
+                                                        </div>
+                                                        <div>
+                                                            <li>
+                                                                <div className={classes.col6}>{user.pressure}</div>
+                                                            </li>
+                                                            <li>
+                                                                <div className={classes.col6}>Dew Point: {user.dewpoint}</div>
+                                                            </li>
+                                                        </div>
+                                                        <div>
+                                                            <li>
+                                                                <div className={classes.col6}>Visibility: {user.visiibility}</div>
+                                                            </li>
+                                                        </div>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+
+                    {/*                     {hourlyForecast.length > 0 && (
+                        <div className={classes.wrap3}>
+                            <div className={classes.container}>
+                                <div className={classes.row}>
+                                    <div className={classes.col12}>
+                                        <div className={classes.chartContainer}>
+                                            <Line
+                                                data={hourlyForecast}
+                                                margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                                            >
+                                                <XAxis
+                                                    dataKey="dt"
+                                                    tickFormatter={(unixTime) =>
+                                                        moment.unix(unixTime).format("h:mm a")
+                                                    }
+                                                />
+                                                <YAxis />
+                                                <CartesianGrid strokeDasharray="3 3" />
+                                                <Tooltip />
+                                                <Legend />
+                                                <Line
+                                                    type="monotone"
+                                                    dataKey="main.temp"
+                                                    name="Temperature (°C)"
+                                                    stroke="rgba(75, 192, 192, 1)"
+                                                    fill="rgba(75, 192, 192, 0.2)"
+                                                />
+                                            </Line>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )} */}
+                </div>
+            </div>
+        </>
+    );
+};
+
+export default Weather;
+
+----------------------------------------------------------------------------------
+
+SignIn Component =>
+
+import React, { useEffect, useState } from "react";
+import { GoogleAuthProvider, getAuth, signInWithPopup } from "firebase/auth";
+import axios from "axios";
+import { Link, useNavigate } from "react-router-dom";
+import { FcGoogle } from "react-icons/fc";
+import firebase from "../firebase/Firebase";
+import classes from "./Signin.module.css";
+
+const SignIn = () => {
+    const [data, setData] = useState({ name: "", email: "", password: "", isLogged: false });
+    const navigate = useNavigate();
+
+    const handleChange = (evt) => {
+        setData({ ...data, [evt.target.name]: evt.target.value });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        console.log("Working");
+
+        try {
+            if (data.email === "" && data.password === "") {
+                alert("Please Enter Email and Password to Proceed.");
+            }
+            else {
+                const response = await axios.get("https://6450d2b7a32219691152a162.mockapi.io/users");
+                const existUser = response.data.filter(
+                    (user) => user.email === data.email && user.password === data.password
+                )[0];
+
+                    const res = await axios.get("https://6450d2b7a32219691152a162.mockapi.io/weather");
+                    const userData = res.data.filter((item) => item.email === existUser.email);
+
+                    console.log(userData);
+
+                if (userData.length === 0) {
+                    localStorage.setItem("email", data.email);
+                    await axios.post("https://6450d2b7a32219691152a162.mockapi.io/weather", {
+                        name: existUser.name,
+                        email: existUser.email,
+                    });
+
+                    navigate("/home");
+                    setData({ ...data, isLogged: true, name: existUser.name });
+                    console.log("Logged In Successfully.");
+                }
+                else {
+                    localStorage.setItem("email", data.email);
+                    navigate("/home");
+                    setData({ ...data, isLogged: true, name: existUser.name });
+                    console.log("Logged In Successfully.");
+                }
+            };
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    const handleClick = async () => {
+        const provider = new GoogleAuthProvider();
+        provider.addScope("https://www.googleapis.com/auth/contacts.readonly");
+        provider.setCustomParameters({
+            login_hint: "user@email.com",
+        });
+
+        const auth = getAuth();
+        signInWithPopup(auth, provider)
+            .then(async (result) => {
+                const credential = GoogleAuthProvider.credentialFromResult(result);
+                const token = credential.accessToken;
+                const user = result.user;
+
+                const response = await axios.get(
+                    "https://6450d2b7a32219691152a162.mockapi.io/weather"
+                );
+
+                console.log(response.data);
+
+                const existingUser = response.data.filter(
+                    (item) => item.email === user.email
+                );
+
+                if (existingUser.length === 0) {
+                    await axios.post(
+                        "https://6450d2b7a32219691152a162.mockapi.io/weather",
+                        {
+                            name: user.displayName,
+                            email: user.email,
+                        }
+                    );
+                }
+
+                navigate("/home");
+                console.log("Logged In Successfully.");
+                setData({ ...data, isLogged: true });
+                setData({ name: user.displayName });
+                localStorage.setItem("email", user.email);
+            })
+            .catch((error) => {
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                const email = error.customData.email;
+                const credential = GoogleAuthProvider.credentialFromError(error);
+            });
+    };
+
+    return (
+        <>
+            <div className={classes.wrap1}>
+                <div className={classes.formContainer}>
+                    <fieldset>
+                        <legend>Sign In Form</legend>
+                        <form onSubmit={handleSubmit} className={classes.signinForm}>
+                            <label htmlFor="email">Enter Email <br /> <input type="email" autoFocus autoComplete="off" name="email" value={data.email} onChange={handleChange} placeholder="youremail@gmail.com" className={classes.email} /></label>
+                            <label htmlFor="password">Enter Password <br /> <input type="password" autoFocus autoComplete="off" name="password" value={data.password} onChange={handleChange} placeholder="password" className={classes.password} /></label>
+                            <button type="submit">Login</button>
+                        </form>
+                        <button className={classes.btn}>Forgot password? <Link to="/verify-email" className={classes.active}>Click Here.</Link></button><br />
+                        <button className={classes.btn}>Don't Have An Account? <Link to="/signup" className={classes.active}>Sign Up Here.</Link></button><br />
+                        <button className={classes.btn} onClick={handleClick}>Sigin In with Google: <FcGoogle /></button>
+                    </fieldset>
+                </div>
+            </div>
+        </>
+    )
+};
+export default SignIn;
+
+-----------------------------------------------------------------------
+
+SignUp Component => 
+
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import classes from "./Signup.module.css"
+
+const SignUp = (props) => {
+
+    const [data, setData] = useState({ name: "", dob: "", gender: "", email: "", password: "" });
+    const [confirmPass, setConfirmPass] = useState({ confirmPassword: "" });
+    const [showPassword, setShowPassword] = useState(false);
+    const navigate = useNavigate();
+
+    const handleChange = (evt) => {
+        setData({ ...data, [evt.target.name]: evt.target.value });
+    };
+
+    const handlePass = (evt) => {
+        setConfirmPass({ ...confirmPass, [evt.target.name]: evt.target.value });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            if (data.password.trim() === confirmPass.confirmPassword.trim()) {
+                const response = await axios.get('https://6450d2b7a32219691152a162.mockapi.io/users');
+                const res = await axios.get(
+                    `http://127.0.0.1:4000/getalluser`
+                );
+                const existUser = response.data.filter((user) => user.email === data.email);
+                const existingUser = res.data.filter((item) => item.email === data.email);
+                if (existingUser.length > 0 && existUser.length > 0) {
+                    alert("User already exists")
+                }
+                else {
+                    await axios.post('https://6450d2b7a32219691152a162.mockapi.io/users', {
+                        name: data.name,
+                        dob: data.dob,
+                        gender: data.gender,
+                        email: data.email,
+                        password: data.password,
+
+                    });
+                    await axios.post(
+                        "http://127.0.0.1:4000/signup-user", data
+                    );
+                    alert("Account Created");
+                    setData({ name: "", dob: "", gender: "", email: "", password: "" });
+                    setConfirmPass({ confirmPassword: "" });
+                    setShowPassword(!showPassword);
+                    navigate("/signin", { replace: true });
+                }
+            } else {
+                alert("Password Didn't Match");
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    const handleShowPassword = () => {
+        setShowPassword(!showPassword);
+    };
+
+    return (
+        <>
+            <div className={classes.wrap1}>
+                <div className={classes.formContainer}>
+                    <fieldset>
+                        <legend>Sign Up From</legend>
+                        <form onSubmit={handleSubmit} className={classes.signupForm}>
+                            <label htmlFor="name">Enter Name <br /> <input type="text" name="name" autoFocus autoComplete="off" required placeholder="your name" onChange={handleChange} value={data.name} className={classes.name} /></label>
+                            <label htmlFor="gender">Gender <br />
+                                <select aria-label="Gender" name="gender" value={data.gender} onChange={handleChange} required>
+                                    <option value="" disabled>Select Gender</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Male">Male</option>
+                                </select>
+                            </label>
+                            <label htmlFor="bob">DOB <br /> <input type="date" name="dob" autoFocus autoComplete="off" required placeholder="date of birth" onChange={handleChange} value={data.dob} className={classes.dob} /></label>
+                            <label htmlFor="email">Enter Email <br /> <input type="email" pattern="^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$" autoFocus autoComplete="off" required name="email" value={data.email} onChange={handleChange} placeholder="youremail@gmail.com" className={classes.email} /></label>
+                            <label htmlFor="password">Enter Password <br /> <input type={!showPassword ? "password" : "text"} pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$" autoFocus autoComplete="off" required name="password" value={data.password} onChange={handleChange} placeholder="password" className={classes.password} /></label>
+                            <label htmlFor="check-password">Re-Enter Password <br /> <input type={!showPassword ? "password" : "text"} pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$" autoFocus autoComplete="off" required name="confirmPassword" value={confirmPass.confirmPassword} onChange={handlePass} placeholder="confirm-password" className={classes.confirmPassword} /></label>
+                            <label htmlFor="show-password">Show Password:<input type="checkbox" name="show-password" className={classes.showPassword} onChange={handleShowPassword} checked={showPassword} /></label>
+                            <button type="submit">Sign Up</button>
+                        </form>
+                        <button className={classes.btn}>Already Have An Account? <Link to="/signin" className={classes.active}>Sign In Here.</Link></button>
+                    </fieldset>
+                </div>
+            </div>
+        </>
+    )
+};
+export default SignUp;
+
+--------------------------------------------------------------------------------
+
+SignOUt Component =>
+
+import { useNavigate } from "react-router-dom";
+import { signOut, getAuth } from "firebase/auth";
+import classes from "./LogoutButton.module.css";
+import { useEffect, useState } from "react";
+import axios from "axios";
+// import { MyContext } from "../signin/Signin";
+
+const LogoutButton = () => {
+
+  // const isLogged = useContext(MyContext);
+  const [name, setName] = useState({name:""});
+  const navigate = useNavigate();
+
+    const getData = async () => {
+      try {
+        const response = await axios.get("https://6450d2b7a32219691152a162.mockapi.io/weather");
+        // console.log(response);
+        const getUser = response.data.find((user) => user.email === localStorage.getItem("email"));
+
+       if(getUser){
+        setName({name:getUser.name});
+       }
+      }
+      catch (error) {
+        console.log(error);
+      }
+    };
+
+    useEffect(() => {
+      getData();
+    },[]);
+
+  const logOut = async () => {
+    const auth = getAuth();
+
+    try {
+      await signOut(auth);
+
+      const email = localStorage.getItem("email");
+      if (email) {
+        localStorage.clear();
+      }
+
+      navigate("/signin");
+      console.log("Logged out successfully.");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  return (
+    <>
+      <span className={classes.span}>Hello, {name.name}</span>
+      <button onClick={logOut}>SignOut</button>
+    </>
+  );
+};
+
+export default LogoutButton;
+
+-------------------------------------------------------------------
+
+MenubAr =>
+
+import { Link } from "react-router-dom";
+import classes from "./Menubar.module.css";
+import LogoutButton from "../signout/LogoutButton";
+
+const Menubar = () => {
+
+    return (
+        <>
+            <div className={classes.wrap1}>
+                <div className={classes.container}>
+                    <div className={classes.row}>
+                        <nav>
+                            <div className={classes.navbar}>
+                                <div>
+                                    <Link to="/"></Link>
+                                </div>
+                                <div className={classes.col2}>
+                                    <Link to="/home">Home</Link>
+                                </div>
+                                <div className={classes.col2}>
+                                    <Link to="/weather">Weather</Link>
+                                </div>
+                                <div className={classes.col2}>
+                                    <Link to="/feedback">Feedback</Link>
+                                </div>
+                                <div className={classes.col2}>
+                                    <Link to="/show">Show</Link>
+                                </div>
+                            </div>
+                        </nav>
+                        <div className={classes.buttons}>
+                            <div className={classes.col5}>
+                               <LogoutButton />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </>
+    )
+};
+export default Menubar;
+
+------------------------------------------------------
+
+App Component =>
+
+import React from "react";
+import { Route, Routes, Outlet, BrowserRouter as Router} from "react-router-dom";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import Home from "../home/Home";
+import Menubar from "../menubar/Menubar";
+import Weather from "../weather/Weather";
+import "./App.module.css";
+import Cover from "../cover/Cover";
+import SignIn from "../signin/Signin";
+import SignUp from "../signup/Signup";
+import Email from "../email/Email";
+import Password from "../rstpassword/Password";
+import Feedback from "../feedback/Feedback";
+import Show from "../show/Show";
+
+const App = () => {
+
+  const MenuOutlet = () => {
+    return (
+     
+        <>
+          <Menubar />
+          <Outlet />
+        </>
+       
+    )
+  };
+  return (
+    <Router>
+        <Routes>
+          <Route path="/" element={<Cover />} />
+          <Route path="/signin" element={<SignIn />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/verify-email" element={<Email />} />
+          <Route path="/reset-password" element={<Password />} />
+          <Route element={<MenuOutlet />}>
+            <Route path="/home" element={<Home />} />
+            <Route path="/weather" element={<Weather />} />
+            <Route path="/feedback" element={<Feedback />} />
+            <Route path="/show" element={<Show />} />
+          </Route>
+        </Routes>
+    </Router>
+  );
+};
+
+export default App;
+
+
+-----------------------------------------------------------------------------
+
+Show Component => 
+
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import classes from "./Show.module.css";
+
+
+const Show = () => {
+    const [weather, setWeather] = useState([]);
+    useEffect(() => {
+        axios.get("https://6450d2b7a32219691152a162.mockapi.io/weathher")
+            .then((response) => {
+                setWeather(response.data);
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    }, []);
+
+    const handleDel = (id, index) => {
+        axios.delete(`https://6450d2b7a32219691152a162.mockapi.io/weathher/${id}`)
+            .then(() => {
+                const arr = [...weather];
+                arr.splice(index, 1);
+                setWeather(arr);
+                console.log("Weather datta has been deleted.");
+            }).catch(err => {
+                console.log(err);
+            })
+    };
+
+    return (
+        <>
+            <div className={classes.wrap1}>
+                <div className={classes.container}>
+                    <div className={classes.row}>
+                        <div className={classes.col12}>
+                            <h1 className={classes.heading}>Weather Data</h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div className={classes.flex}>
+                <div className={classes.container}>
+                    {weather.map((user, i) => (
+                        <div className={classes.show} key={user.id}>
+                            <div className={classes.wrap2}>
+                                <div className={classes.container}>
+                                    <div className={classes.detail}>
+                                        <div className={classes.row}>
+                                            <div className={classes.cityDetail}>
+                                                <div className={classes.col12}>
+                                                    <span className={classes.date}>{user.date}</span>
+                                                </div>
+                                                <div className={`${classes.col12} ${classes.box}`}>
+                                                    <h2 className={classes.name}>
+                                                        {user.seher}
+                                                        {user.country}
+                                                    </h2>
+                                                        <button type="submit" className={classes.btn} onClick={() => handleDel(user.id, i)}>✕</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className={classes.wrap3}>
+                                <div className={classes.container}>
+                                    <div className={classes.row}>
+                                        <div className={classes.weatherTemp}>
+                                            <div className={classes.col12}>
+                                                <span className={classes.temp}>
+                                                    <img src={user.icon} alt="icon" /> {user.temperature}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className={classes.row}>
+                                        <div className={classes.weather}>
+                                            <div className={classes.col12}>
+                                                <p className={classes.main}>
+                                                    Feels Like: {user.feelslike}.{user.main}.{user.description}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className={classes.row}>
+                                        <div className={classes.detail}>
+                                            <div className={classes.col12}>
+                                                <ul>
+                                                    <div>
+                                                        <li>
+                                                            <div className={classes.col6}>{user.windspeed}</div>
+                                                        </li>
+                                                        <li>
+                                                            <div className={classes.col6}>Humidity: {user.humidity}</div>
+                                                        </li>
+                                                    </div>
+                                                    <div>
+                                                        <li>
+                                                            <div className={classes.col6}>{user.pressure}</div>
+                                                        </li>
+                                                        <li>
+                                                            <div className={classes.col6}>Dew Point: {user.dewpoint}</div>
+                                                        </li>
+                                                    </div>
+                                                    <div>
+                                                        <li>
+                                                            <div className={classes.col6}>Visibility: {user.visiibility}</div>
+                                                        </li>
+                                                    </div>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </>
+    );
+};
+export default Show;
+
+------------------------------------------------------------------------------------------------------
+
+Weather Component useEffect Code :-
+
+ if (getUser && getUser.cities) {
+            const weatherData = await Promise.all(
+                getUser.cities.map(async (city) => {
+                    const res = await axios.get(
+                        `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=81da5ca090adf861717fd71753373575&units=metric`
+                    );
+
+                    const data = res.data;
+                    const date = moment.unix(data.dt).utcOffset(data.timezone).format("MMMM Do YYYY, h:mm a");
+                    const seher = data.name;
+                    const country = data.sys.country ? `, ${data.sys.country}` : "";
+                    const icon = `http://openweathermap.org/img/wn/${data.weather[0].icon}.png`;
+                    const temperature = `${data.main.temp}\u00B0C`;
+                    const feelslike = `${data.main.feels_like}\u00B0C`;
+                    const main = data.weather[0].main ? `. ${data.weather[0].main}` : "";
+                    const description = data.weather[0].description ? `. ${data.weather[0].description.charAt(0).toUpperCase() + data.weather[0].description.slice(1)}` : "";
+                    const windspeed = data.wind.speed ? `${data.wind.speed}m/s ${getWindDirection(data.wind.deg)}` : "";
+                    const pressure = data.main.pressure ? `${data.main.pressure}hPa` : "";
+                    const dewpoint = data.main.temp_min ? `${(((data.main.temp) - (100 - (data.main.humidity))) / 5).toFixed(2)}\u00B0C` : "";
+                    const visibility = data.visibility ? `${data.visibility / 1000}km` : "";
+                    const humidity = data.main.humidity ? `${data.main.humidity}%` : "";
+
+                    const newWeather = {
+                        id: data.id,
+                        date,
+                        seher,
+                        country,
+                        icon,
+                        temperature,
+                        feelslike,
+                        main,
+                        description,
+                        windspeed,
+                        pressure,
+                        dewpoint,
+                        visibility,
+                        humidity,
+                    };
+
+                    return newWeather;
+                })
+            );
+            setWeather(weatherData);
+        }
+    };
